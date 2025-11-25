@@ -1,0 +1,51 @@
+# Nombre del flujo de trabajo que verás en GitHub
+name: Desplegar Aplicacion en GitHub Pages
+
+# Se ejecuta automáticamente cada vez que subes cambios a la rama principal (main)
+on:
+  push:
+    branches: [ "main" ]
+
+# Permisos necesarios para que GitHub pueda publicar en tu nombre
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Tareas a realizar
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Usará una computadora virtual con Ubuntu
+
+    steps:
+      # 1. Clona tu repositorio en la máquina virtual
+      - name: Clonar el código
+        uses: actions/checkout@v3
+
+      # 2. Configura Node.js, la herramienta para construir la app
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. Instala todas las "piezas" de la aplicación
+      - name: Instalar dependencias
+        run: npm install
+
+      # 4. Construye la versión final de la aplicación para la web
+      - name: Construir la aplicación
+        run: npm run build
+
+      # 5. Prepara los archivos para subirlos a GitHub Pages
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v3
+
+      # 6. Sube los archivos construidos
+      - name: Subir artefacto
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: './dist' # La carpeta 'dist' es donde se guarda la app construida
+
+      # 7. Despliega la aplicación en tu sitio público
+      - name: Desplegar en GitHub Pages
+        uses: actions/deploy-pages@v2
